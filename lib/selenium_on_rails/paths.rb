@@ -1,4 +1,4 @@
-require 'selenium_on_rails_config'
+require File.dirname(__FILE__) + '/../../lib/selenium_on_rails_config' 
 
 module SeleniumOnRails
   module Paths
