@@ -55,6 +55,7 @@ iframe {
 
 body, html {
     font-family: Verdana, Arial, sans-serif;
+	 font-size: 10px;	 
 }
 
 .selenium th, .selenium td {
