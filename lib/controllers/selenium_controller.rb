@@ -41,6 +41,7 @@ class SeleniumController < ActionController::Base
     if File.file? filename
       type = WEBrick::HTTPUtils::DefaultMimeTypes[$1.downcase] if filename =~ /\.(\w+)$/
       type ||= 'text/html'
+      type = 'text/javascript' if filename =~ /\.js$/
       send_file filename, :type => type, :disposition => 'inline', :stream => false
     else
       render :text => 'Not found', :status => 404
