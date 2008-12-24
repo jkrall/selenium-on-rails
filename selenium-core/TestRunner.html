@@ -64,14 +64,14 @@ to work-around a bug in IE on Win2K whereby the HTA application doesn't function
 <!-- Suite, Test, Control Panel -->
 
 <tr class="selenium">
-<td width="25%" height="30%">
+<td width="25%" height="10%">
     <iframe name="testSuiteFrame" id="testSuiteFrame" src="./TestPrompt.html" application="yes"></iframe>
 </td>
-<td width="50%" height="30%">
+<td width="50%" height="10%">
     <iframe name="testFrame" id="testFrame" application="yes"></iframe>
 </td>
 
-<td width="25%">
+<td width="25%" height="10%">
     <table class="layout">
         <tr class="selenium">
             <th width="25%" height="1" class="header">
@@ -80,9 +80,9 @@ to work-around a bug in IE on Win2K whereby the HTA application doesn't function
             </th>
         </tr>
         <tr>
-            <td width="25%" height="30%" id="controlPanel">
+            <td width="25%" height="10%" id="controlPanel">
                 <fieldset>
-                    <legend>Execute Tests</legend>
+                    <!-- legend>Execute Tests</legend -->
 
                     <div id="imageButtonPanel">
                         <button type="button" id="runSuite" onClick="htmlTestRunner.startTestSuite();"
@@ -99,9 +99,9 @@ to work-around a bug in IE on Win2K whereby the HTA application doesn't function
                         </button>
                     </div>
 
-                    <div style="float:left">Fast</div>
-                    <div style="float:right">Slow</div>
-                    <br/>
+                    <div style="float:left; display: none;">Fast</div>
+                    <div style="float:right; display: none;">Slow</div>
+                    <!-- br/ -->
                     <div id="speedSlider">
                         <div id="speedTrack">&nbsp;</div>
                         <div id="speedHandle">&nbsp;</div>
@@ -143,7 +143,7 @@ to work-around a bug in IE on Win2K whereby the HTA application doesn't function
                 </table>
 
                 <fieldset>
-                    <legend>Tools</legend>
+                    <!-- legend>Tools</legend -->
 
                     <button type="button" id="domViewer1" onClick="openDomViewer();">
                         View DOM
@@ -163,7 +163,7 @@ to work-around a bug in IE on Win2K whereby the HTA application doesn't function
 <!-- AUT -->
 
 <tr>
-    <td colspan="3" height="70%">
+    <td colspan="3" height="90%">
         <iframe name="myiframe" id="myiframe" src="TestRunner-splash.html"></iframe>
     </td>
 </tr>

@@ -300,12 +300,11 @@ objectExtend(HtmlTestRunnerControlPanel.prototype, {
         this.pauseButton.onclick = fnBindAsEventListener(this.pauseCurrentTest, this);
         this.stepButton.onclick = fnBindAsEventListener(this.stepCurrentTest, this);
 
-
-        this.speedController = new Control.Slider('speedHandle', 'speedTrack', {
-            range: $R(0, 1000),
-            onSlide: fnBindAsEventListener(this.setRunInterval, this),
-            onChange: fnBindAsEventListener(this.setRunInterval, this)
-        });
+        //this.speedController = new Control.Slider('speedHandle', 'speedTrack', {
+        //    range: $R(0, 1000),
+        //    onSlide: fnBindAsEventListener(this.setRunInterval, this),
+        //    onChange: fnBindAsEventListener(this.setRunInterval, this)
+        //});
 
         this._parseQueryParameter();
     },
