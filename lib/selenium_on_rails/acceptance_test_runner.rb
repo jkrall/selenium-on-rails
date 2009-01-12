@@ -202,7 +202,7 @@ class SeleniumOnRails::AcceptanceTestRunner::SubProcess
     end
   end
   
-  def is_alive?(pid)
+  def is_alive?
     begin
       Process.kill(0, @pid.to_i)
       # puts "#{pid} is running"
