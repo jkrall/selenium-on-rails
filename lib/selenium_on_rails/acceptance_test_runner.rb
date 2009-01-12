@@ -26,25 +26,51 @@ SERVER_COMMAND =      c_b :server_command do
     "#{server_path} webrick -p %d -e test"
   end
 end
+USE_XVFB =		c :use_xvfb, true
+XVFB_COMMAND =		c :xvfb_command, '/usr/bin/Xvfb :666 -screen 0 1024x768x24'
+SNAPSHOT_COMMAND = 	c :snapshot_command, 'import -window root '
+DO_FINAL_SNAPSHOT = 	c :do_final_snapshot, true
+DO_PROGRESS_SNAPSHOTS = c :do_progress_snapshots, true
 
 module SeleniumOnRails
   class AcceptanceTestRunner
     include SeleniumOnRails::Paths
-  
+    
     def run
       raise 'no browser specified, edit/create config.yml' if BROWSERS.empty?
       start_server
       has_error = false
       begin
+        
+        if USE_XVFB
+          puts
+          puts "Starting Xvfb"
+          @xvfb = start_subprocess XVFB_COMMAND
+          @display = ENV['DISPLAY']
+          ENV['DISPLAY'] = ':666'
+        end
+        @snapnum = 0
+        
         BROWSERS.each_pair do |browser, path|
           log_file = start_browser browser, path
           wait_for_completion log_file
+          
+          if DO_FINAL_SNAPSHOT
+            take_snapshot("#{browser}_final")
+          end
+          
           stop_browser
           result = YAML::load_file log_file
           print_result result
           has_error ||= result['numTestFailures'].to_i > 0
           File.delete log_file unless has_error
         end
+        
+        if USE_XVFB
+          @xvfb.stop 'Xvfb'
+          ENV['DISPLAY'] = @display
+        end	   
+        
       rescue
         stop_server
         raise
@@ -54,107 +80,116 @@ module SeleniumOnRails
     end
     
     private
-      def start_server
-        PORTS.each do |p|
-          @port = p
-          case server_check
-            when :success
-              return if REUSE_EXISTING_SERVER
-              next
-            when Fixnum
-              next
-            when :no_response
-              next unless START_SERVER
-              do_start_server
-              return
-          end
-        end
-        raise START_SERVER ? 'failed to start server': 'failed to find existing server, run script/server -e test'
-      end
-      
-      def do_start_server
-        puts 'Starting server'
-        @server = start_subprocess(format(SERVER_COMMAND, @port))
-        while true
-          print '.'
-          r = server_check
-          if r == :success
-            puts
-            return
-          end
-          raise "server returned error: #{r}" if r.instance_of? Fixnum
-          sleep 3
-        end
-      end
+    def take_snapshot(name)
+      cmd = "#{SNAPSHOT_COMMAND} #{ENV['CC_BUILD_ARTIFACTS']}/selenium_#{name}.png"
+      @snapshot = start_subprocess cmd
+    end
     
-      def server_check
-        begin
-          res = Net::HTTP.get_response HOST, TEST_RUNNER_URL, @port
-          return :success if (200..399).include? res.code.to_i
-          return res.code.to_i
-        rescue Errno::ECONNREFUSED
-          return :no_response
+    def start_server
+      PORTS.each do |p|
+        @port = p
+        case server_check
+          when :success
+          return if REUSE_EXISTING_SERVER
+          next
+          when Fixnum
+          next
+          when :no_response
+          next unless START_SERVER
+          do_start_server
+          return
         end
       end
+      raise START_SERVER ? 'failed to start server': 'failed to find existing server, run script/server -e test'
+    end
     
-      def stop_server
-        return unless defined? @server
-        puts
-        @server.stop 'server'
-      end
-    
-      def start_browser browser, path
-        puts
-        puts "Starting #{browser}"
-        base_url = "http://#{HOST}:#{@port}#{BASE_URL_PATH}"
-        log = log_file browser
-        command = "\"#{path}\" \"http://#{HOST}:#{@port}#{TEST_RUNNER_URL}?test=tests&auto=true&baseUrl=#{base_url}&resultsUrl=postResults/#{log}&multiWindow=#{MULTI_WINDOW}\""
-        @browser = start_subprocess command    
-        log_path log
-      end
-      
-      def stop_browser
-        @browser.stop 'browser'
-      end
-      
-      def start_subprocess command
-        if RUBY_PLATFORM =~ /mswin/
-          SeleniumOnRails::AcceptanceTestRunner::Win32SubProcess.new command
-        elsif RUBY_PLATFORM =~ /darwin/i && command =~ /safari/i
-          SeleniumOnRails::AcceptanceTestRunner::SafariSubProcess.new command
-        else
-          SeleniumOnRails::AcceptanceTestRunner::UnixSubProcess.new command
+    def do_start_server
+      puts 'Starting server'
+      @server = start_subprocess(format(SERVER_COMMAND, @port))
+      while true
+        print '.'
+        r = server_check
+        if r == :success
+          puts
+          return
         end
+        raise "server returned error: #{r}" if r.instance_of? Fixnum
+        sleep 3
       end
-      
-      def log_file browser
-        FileUtils.mkdir_p(log_path(''))
-        (0..100).each do |i|
-          name = browser + (i==0 ? '' : "(#{i})") + '.yml'
-          return name unless File.exist?(log_path(name))
-        end
-        raise 'there are way too many files in the log directory...'
-      end
+    end
     
-      def wait_for_completion log_file
-        duration = 0
-        while true
-          raise 'browser takes too long' if duration > MAX_BROWSER_DURATION
-          print '.'
-          break if File.exist? log_file
-          sleep 5
-          duration += 5
-        end
-        puts
+    def server_check
+      begin
+        res = Net::HTTP.get_response HOST, TEST_RUNNER_URL, @port
+        return :success if (200..399).include? res.code.to_i
+        return res.code.to_i
+      rescue Errno::ECONNREFUSED
+        return :no_response
       end
+    end
     
-      def print_result result
-        puts "Finished in #{result['totalTime']} seconds."
-        puts
-        puts "#{result['numTestPasses']} tests passed, #{result['numTestFailures']} tests failed"
-        puts "(Results stored in '#{result['resultDir']}')" if result['resultDir']
+    def stop_server
+      return unless defined? @server
+      puts
+      @server.stop 'server'
+    end
+    
+    def start_browser browser, path
+      puts
+      puts "Starting #{browser}"
+      base_url = "http://#{HOST}:#{@port}#{BASE_URL_PATH}"
+      log = log_file browser
+      command = "#{path} \"http://#{HOST}:#{@port}#{TEST_RUNNER_URL}?test=tests&auto=true&baseUrl=#{base_url}&resultsUrl=postResults/#{log}&multiWindow=#{MULTI_WINDOW}\""
+      @browser = start_subprocess command    
+      log_path log
+    end
+    
+    def stop_browser
+      @browser.stop 'browser'
+    end
+    
+    def start_subprocess command
+      if RUBY_PLATFORM =~ /mswin/
+        SeleniumOnRails::AcceptanceTestRunner::Win32SubProcess.new command
+      elsif RUBY_PLATFORM =~ /darwin/i && command =~ /safari/i
+        SeleniumOnRails::AcceptanceTestRunner::SafariSubProcess.new command
+      else
+        SeleniumOnRails::AcceptanceTestRunner::UnixSubProcess.new command
       end
-        
+    end
+    
+    def log_file browser
+      FileUtils.mkdir_p(log_path(''))
+       (0..100).each do |i|
+        name = browser + (i==0 ? '' : "(#{i})") + '.yml'
+        return name unless File.exist?(log_path(name))
+      end
+      raise 'there are way too many files in the log directory...'
+    end
+    
+    def wait_for_completion log_file
+      duration = 0
+      while true
+        raise 'browser takes too long' if duration > MAX_BROWSER_DURATION
+        print '.'
+        break if ( File.exist?(log_file) or !@browser.is_alive? )
+        if DO_PROGRESS_SNAPSHOTS and ((duration % 20) == 0)
+          take_snapshot("progress.#{@snapnum}")    	     
+          @snapnum += 1
+        end
+        sleep 5
+        duration += 5
+      end
+      puts
+    end
+    
+    def print_result result
+      puts "Finished in #{result['totalTime']} seconds."
+      puts
+      puts "#{result['numTestPasses']} tests passed, #{result['numTestFailures']} tests failed"
+      puts "(Results stored in '#{result['resultDir']}')" if result['resultDir']
+    end
+    
   end
 end
 
@@ -166,12 +201,28 @@ class SeleniumOnRails::AcceptanceTestRunner::SubProcess
     rescue Errno::EPERM #such as the process is already closed (tabbed browser)
     end
   end
+  
+  def is_alive?(pid)
+    begin
+      Process.kill(0, @pid.to_i)
+      # puts "#{pid} is running"
+      return true
+    rescue Errno::EPERM                     # changed uid
+      puts "No permission to query #{pid}!";
+    rescue Errno::ESRCH
+      puts "#{pid} is NOT running.";      # or zombied
+    rescue
+      puts "Unable to determine status for #{pid} : #{$!}"
+    end
+    return false
+  end
+  
 end
 
 class SeleniumOnRails::AcceptanceTestRunner::Win32SubProcess < SeleniumOnRails::AcceptanceTestRunner::SubProcess
   def initialize command
     require 'win32/open3' #win32-open3 http://raa.ruby-lang.org/project/win32-open3/
-
+    
     puts command
     input, output, error, @pid = Open4.popen4 command, 't', true
   end
@@ -207,7 +258,7 @@ class SeleniumOnRails::AcceptanceTestRunner::SafariSubProcess < SeleniumOnRails:
     f.close
     
     super "#{command.split.first} #{f.path}"
-   end
+  end
   
 end
-  
+
