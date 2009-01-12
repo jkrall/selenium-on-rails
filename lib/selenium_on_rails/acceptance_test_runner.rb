@@ -26,6 +26,8 @@ SERVER_COMMAND =      c_b :server_command do
     "#{server_path} webrick -p %d -e test"
   end
 end
+USE_XVFB =		c :use_xvfb, true
+XVFB_COMMAND =		c :xvfb_command, '/usr/bin/Xvfb :666 -screen 0 1024x768x24'
 
 module SeleniumOnRails
   class AcceptanceTestRunner
@@ -36,6 +38,16 @@ module SeleniumOnRails
       start_server
       has_error = false
       begin
+
+	if USE_XVFB
+           puts
+           puts "Starting Xvfb"
+           @xvfb = start_subprocess XVFB_COMMAND
+           @display = ENV['DISPLAY']
+	   ENV['DISPLAY'] = ':666'
+	end
+	
+
         BROWSERS.each_pair do |browser, path|
           log_file = start_browser browser, path
           wait_for_completion log_file
@@ -45,6 +57,12 @@ module SeleniumOnRails
           has_error ||= result['numTestFailures'].to_i > 0
           File.delete log_file unless has_error
         end
+
+	if USE_XVFB
+           @xvfb.stop 'Xvfb'
+       	   ENV['DISPLAY'] = @display
+	end	   
+
       rescue
         stop_server
         raise
@@ -108,7 +126,7 @@ module SeleniumOnRails
         puts "Starting #{browser}"
         base_url = "http://#{HOST}:#{@port}#{BASE_URL_PATH}"
         log = log_file browser
-        command = "\"#{path}\" \"http://#{HOST}:#{@port}#{TEST_RUNNER_URL}?test=tests&auto=true&baseUrl=#{base_url}&resultsUrl=postResults/#{log}&multiWindow=#{MULTI_WINDOW}\""
+        command = "#{path} \"http://#{HOST}:#{@port}#{TEST_RUNNER_URL}?test=tests&auto=true&baseUrl=#{base_url}&resultsUrl=postResults/#{log}&multiWindow=#{MULTI_WINDOW}\""
         @browser = start_subprocess command    
         log_path log
       end
