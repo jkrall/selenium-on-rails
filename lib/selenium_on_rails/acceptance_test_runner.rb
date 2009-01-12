@@ -49,7 +49,7 @@ module SeleniumOnRails
            @display = ENV['DISPLAY']
 	   ENV['DISPLAY'] = ':666'
 	end
-	
+	@snapnum = 0
 
         BROWSERS.each_pair do |browser, path|
           log_file = start_browser browser, path
@@ -169,14 +169,13 @@ module SeleniumOnRails
     
       def wait_for_completion log_file
         duration = 0
-	snapnum = 0
         while true
           raise 'browser takes too long' if duration > MAX_BROWSER_DURATION
           print '.'
           break if File.exist? log_file
 	  if DO_PROGRESS_SNAPSHOTS and ((duration % 20) == 0)
-	     take_snapshot("#{browser}_progress.#{snapnum}")    	     
-	     snapnum += 1
+	     take_snapshot("progress.#{@snapnum}")    	     
+	     @snapnum += 1
 	  end
           sleep 5
           duration += 5
