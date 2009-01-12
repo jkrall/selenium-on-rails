@@ -172,7 +172,7 @@ module SeleniumOnRails
         while true
           raise 'browser takes too long' if duration > MAX_BROWSER_DURATION
           print '.'
-          break if File.exist? log_file
+          break if ( File.exist?(log_file) or (!is_process_alive?(@browser.pid)) )
 	  if DO_PROGRESS_SNAPSHOTS and ((duration % 20) == 0)
 	     take_snapshot("progress.#{@snapnum}")    	     
 	     @snapnum += 1
@@ -188,6 +188,21 @@ module SeleniumOnRails
         puts
         puts "#{result['numTestPasses']} tests passed, #{result['numTestFailures']} tests failed"
         puts "(Results stored in '#{result['resultDir']}')" if result['resultDir']
+      end
+
+      def is_process_alive?(pid)
+      	  begin
+	    Process.kill(0, pid.to_i)
+	    # puts "#{pid} is running"
+	    return true
+	  rescue Errno::EPERM                     # changed uid
+	    puts "No permission to query #{pid}!";
+	  rescue Errno::ESRCH
+	    puts "#{pid} is NOT running.";      # or zombied
+	  rescue
+	    puts "Unable to determine status for #{pid} : #{$!}"
+	  end
+	  return false
       end
         
   end
