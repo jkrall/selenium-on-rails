@@ -53,11 +53,11 @@ class SeleniumController < ActionController::Base
     path = File.dirname(filename)
     FileUtils::mkdir_p(path)
     display = SeleniumOnRailsConfig.get(:xvfb_display, ':555')
-    cmd = "import -display #{display} -window root #{filename}"
+    cmd = "/usr/bin/import -display #{display} -window root #{filename}"
     logger.info "Taking Screenshot with: #{cmd}"
     p "Taking Screenshot with: #{cmd}"    
-    system(cmd)
-    render :text=>'Screenshot Taken.'
+    result = system(cmd)
+    render :text=>"Screenshot Taken, result: #{result}"
   end
 
   def record

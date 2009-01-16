@@ -28,8 +28,8 @@ SERVER_COMMAND =      c_b :server_command do
 end
 USE_XVFB =		c :use_xvfb, true
 XVFB_COMMAND =		c :xvfb_command, '/usr/bin/Xvfb'
-XVFB_SIZE =   c :xvfb_size,'1024x768x24'
-XVFB_DISPLAY = c :xvfb_display, ':555'
+XVFB_SIZE =             c :xvfb_size,'1024x768x24'
+XVFB_DISPLAY =          c :xvfb_display, ':555'
 XVFB_CMD = "#{XVFB_COMMAND} #{XVFB_DISPLAY} -screen 0 #{XVFB_SIZE}"
 
 module SeleniumOnRails
