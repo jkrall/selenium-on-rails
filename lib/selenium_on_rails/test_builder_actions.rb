@@ -497,6 +497,14 @@ module SeleniumOnRails::TestBuilderActions
   def wait_for_page_to_load timeout
     command 'waitForPageToLoad', timeout
   end
+  
+  #
+  #
+  #
+  def request_screenshot(host, filename)
+    command 'requestScreenshot', "#{host}/selenium/screenshot", filename
+  end
+  
 
 private
   # Generates the corresponding +_and_wait+ for each action.

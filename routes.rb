@@ -12,6 +12,8 @@ module ActionController
             :controller => 'selenium', :action => 'record'
           map.connect 'selenium/postResults/:logFile',
             :controller => 'selenium', :action => 'record', :requirements => { :logFile => /.*/ }
+          map.connect 'selenium/screenshot',
+            :controller => 'selenium', :action => 'screenshot'
           map.connect 'selenium/*filename',
             :controller => 'selenium', :action => 'support_file'
           yield map if block_given?

@@ -745,8 +745,8 @@ var seenReadyStateWarning = false;
 
 function openSeparateApplicationWindow(url, suppressMozillaWarning) {
     // resize the Selenium window itself
-    window.resizeTo(1200, 500);
-    window.moveTo(window.screenX, 0);
+    window.resizeTo(1200, 400);
+    window.moveTo(0, 0);
 
     var appWindow = window.open(url + '?start=true', 'main');
     try {
@@ -760,7 +760,8 @@ function openSeparateApplicationWindow(url, suppressMozillaWarning) {
         if (window.screenLeft && !window.screenX) window.screenX = window.screenLeft;
         if (window.screenTop && !window.screenY) window.screenY = window.screenTop;
 
-        appWindow.resizeTo(1200, screen.availHeight - windowHeight - 60);
+        //appWindow.resizeTo(1200, screen.availHeight - windowHeight - 60);
+		  appWindow.resizeTo(900, 1200);
         appWindow.moveTo(window.screenX, window.screenY + windowHeight + 25);
     } catch (e) {
         LOG.error("Couldn't resize app window");

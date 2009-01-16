@@ -27,10 +27,10 @@ SERVER_COMMAND =      c_b :server_command do
   end
 end
 USE_XVFB =		c :use_xvfb, true
-XVFB_COMMAND =		c :xvfb_command, '/usr/bin/Xvfb :666 -screen 0 1024x768x24'
-SNAPSHOT_COMMAND = 	c :snapshot_command, 'import -window root '
-DO_FINAL_SNAPSHOT = 	c :do_final_snapshot, true
-DO_PROGRESS_SNAPSHOTS = c :do_progress_snapshots, true
+XVFB_COMMAND =		c :xvfb_command, '/usr/bin/Xvfb'
+XVFB_SIZE =   c :xvfb_size,'1024x768x24'
+XVFB_DISPLAY = c :xvfb_display, ':555'
+XVFB_CMD = "#{XVFB_COMMAND} #{XVFB_DISPLAY} -display 0 #{XVFB_SIZE}"
 
 module SeleniumOnRails
   class AcceptanceTestRunner
@@ -45,20 +45,15 @@ module SeleniumOnRails
         if USE_XVFB
           puts
           puts "Starting Xvfb"
-          @xvfb = start_subprocess XVFB_COMMAND
+          @xvfb = start_subprocess XVFB_CMD
           @display = ENV['DISPLAY']
-          ENV['DISPLAY'] = ':666'
+          ENV['DISPLAY'] = XVFB_DISPLAY
         end
         @snapnum = 0
         
         BROWSERS.each_pair do |browser, path|
           log_file = start_browser browser, path
           wait_for_completion log_file
-          
-          if DO_FINAL_SNAPSHOT
-            take_snapshot("#{browser}_final")
-          end
-          
           stop_browser
           result = YAML::load_file log_file
           print_result result
@@ -80,10 +75,6 @@ module SeleniumOnRails
     end
     
     private
-    def take_snapshot(name)
-      cmd = "#{SNAPSHOT_COMMAND} #{ENV['CC_BUILD_ARTIFACTS']}/selenium_#{name}.png"
-      @snapshot = start_subprocess cmd
-    end
     
     def start_server
       PORTS.each do |p|
@@ -173,10 +164,6 @@ module SeleniumOnRails
         raise 'browser takes too long' if duration > MAX_BROWSER_DURATION
         print '.'
         break if ( File.exist?(log_file) or !@browser.is_alive? )
-        if DO_PROGRESS_SNAPSHOTS and ((duration % 20) == 0)
-          take_snapshot("progress.#{@snapnum}")    	     
-          @snapnum += 1
-        end
         sleep 5
         duration += 5
       end

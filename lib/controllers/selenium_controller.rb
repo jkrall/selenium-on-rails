@@ -11,7 +11,7 @@ class SeleniumController < ActionController::Base
     end
     @cleared_tables = clear_tables params[:clear_tables].to_s
     @loaded_fixtures = load_fixtures params[:fixtures].to_s
-    render :file => view_path('setup.rhtml'), :layout => layout_path\
+    render :file => view_path('setup.rhtml'), :layout => layout_path
   end
 
   def test_file
@@ -46,6 +46,19 @@ class SeleniumController < ActionController::Base
     else
       render :text => 'Not found', :status => 404
     end
+  end
+
+  def screenshot
+    filename = params[:filename]
+    path = File.dirname(filename)
+    FileUtils::mkdir_p(path)
+    display = ENV['DISPLAY']
+    ENV['DISPLAY'] = SeleniumOnRailsConfig.get(:xvfb_display, ':555')
+    cmd = "import -window root #{filename}"
+    logger.info "Taking Screenshot with: #{cmd}"
+    system(cmd)
+    ENV['DISPLAY'] = display
+    render :text=>'Screenshot Taken.'
   end
 
   def record
