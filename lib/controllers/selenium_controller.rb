@@ -54,14 +54,16 @@ class SeleniumController < ActionController::Base
     FileUtils::mkdir_p(path)
     display = SeleniumOnRailsConfig.get(:xvfb_display, ':555')
     cmd = "/usr/bin/import -display #{display} -window root #{filename}"
-    smallfilename = filename.sub(/(\.\w+)$/,"-small\1")
-    resizecmd = "/usr/bin/convert #{filename} -resize 20% #{smallfilename}"
     logger.info "Taking Screenshot with: #{cmd}"
     p "Taking Screenshot with: #{cmd}"    
     result = system(cmd)
+
+    smallfilename = filename.sub(/(\.\w+)$/,"-small\1")
+    resizecmd = "/usr/bin/convert #{filename} -resize 20% #{smallfilename}"
     logger.info "Reducing screenshot with: #{resizecmd}"
     p "Reducing screenshot with: #{resizecmd}"    
     system(resizecmd)
+
     render :text=>"Screenshot Taken, result: #{result}"
   end
 
