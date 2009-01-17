@@ -58,7 +58,9 @@ class SeleniumController < ActionController::Base
     p "Taking Screenshot with: #{cmd}"    
     result = system(cmd)
 
-    smallfilename = filename.sub(/(\.\w+)$/,"-small\1")
+    smallfilename = filename.dirname(filename)+'/thumbnails'
+    FileUtils::mkdir_p(smallfilename)
+    smallfilename = smallfilename + '/' + filename.basename(filename)
     resizecmd = "/usr/bin/convert #{filename} -resize 20% #{smallfilename}"
     logger.info "Reducing screenshot with: #{resizecmd}"
     p "Reducing screenshot with: #{resizecmd}"    
