@@ -256,6 +256,10 @@ objectExtend(HtmlTestFrame.prototype, {
 });
 
 function onSeleniumLoad() {
+
+    window.moveTo(0,0);
+    window.resizeTo(screen.availWidth, screen.availHeight);
+
     suiteFrame = new HtmlTestSuiteFrame(getSuiteFrame());
     testFrame = new HtmlTestFrame(getTestFrame());
     htmlTestRunner = new HtmlTestRunner();
