@@ -163,6 +163,7 @@ module SeleniumOnRails
       while true
         raise 'browser takes too long' if duration > MAX_BROWSER_DURATION
         print '.'
+        $stdout.flush
         break if ( File.exist?(log_file) or !@browser.is_alive? )
         sleep 5
         duration += 5
