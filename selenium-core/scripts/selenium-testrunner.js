@@ -363,7 +363,7 @@ objectExtend(HtmlTestRunnerControlPanel.prototype, {
     },
 
     reset: function() {
-        this.runInterval = this.speedController.value;
+        //this.runInterval = this.speedController.value;
         this._switchContinueButtonToPause();
     },
 
@@ -1305,7 +1305,7 @@ Selenium.prototype.doEcho = function(message) {
 Selenium.prototype._doSetSpeed = function(value) {
     var milliseconds = parseInt(value);
     if (milliseconds < 0) milliseconds = 0;
-    htmlTestRunner.controlPanel.speedController.setValue(milliseconds);
+    //htmlTestRunner.controlPanel.speedController.setValue(milliseconds);
     htmlTestRunner.controlPanel.setRunInterval(milliseconds);
 }
 Selenium.prototype.doSetSpeed = Selenium.prototype._doSetSpeed;
