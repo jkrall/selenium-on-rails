@@ -26,7 +26,7 @@ class SeleniumOnRails::RSelenese
   end
   
   def assign_locals_code_from(local_assigns)
-    return local_assigns.keys.collect {|key| "#{key} = local_assigns[#{key.inspect}];"}.join
+    return local_assigns.keys.collect {|key| "@#{key} = #{local_assigns[key].inspect};"}.join
   end
   
   def self.call(template)
