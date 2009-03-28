@@ -3,10 +3,14 @@ require 'webrick/httputils'
 class SeleniumController < ActionController::Base
   include SeleniumOnRails::FixtureLoader
   include SeleniumOnRails::Renderer
-
+  
+  def initialize
+    @result_dir = SeleniumOnRailsConfig.get(:result_dir)
+  end
+  
   def setup
     unless params.has_key? :keep_session
-      reset_session
+      reset_session #  IS THIS WORKING!  NO THINK SO
       @session_wiped = true
     end
     @cleared_tables = clear_tables params[:clear_tables].to_s
@@ -73,18 +77,19 @@ class SeleniumController < ActionController::Base
     dir = record_table
 
     @result = {'resultDir' => dir}
-    for p in ['result', 'numTestFailures', 'numTestPasses', 'numCommandFailures', 'numCommandPasses', 'numCommandErrors', 'totalTime']
-      @result[p] = params[p]
+    ['result', 'numTestFailures', 'numTestPasses', 'numCommandFailures', 'numCommandPasses', 'numCommandErrors', 'totalTime'].each do |item|
+      @result[item] = params[item]
     end
+    
     File.open(log_path(params[:logFile] || 'default.yml'), 'w') {|f| YAML.dump(@result, f)}
     
     render :file => view_path('record.rhtml'), :layout => layout_path
   end
 
   def record_table
-    return nil unless result_dir = SeleniumOnRailsConfig.get(:result_dir)
+    return nil unless @result_dir
 
-    cur_result_dir = File.join(result_dir, (params[:logFile] || "default").sub(/\.yml$/, ''))
+    cur_result_dir = File.join(@result_dir, (params[:logFile] || "default").sub(/\.yml$/, ''))
     FileUtils.mkdir_p(cur_result_dir)
     File.open("#{cur_result_dir}/index.html", "wb") do |f|
       f.write <<EOS

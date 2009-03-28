@@ -16,6 +16,8 @@ module ActionController
             :controller => 'selenium', :action => 'screenshot'
           map.connect 'selenium/*filename',
             :controller => 'selenium', :action => 'support_file'
+          map.connect 'switch_environment',
+            :controller => 'switch_environment', :action => 'index'  
           yield map if block_given?
         end
       end

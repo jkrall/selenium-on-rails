@@ -1,5 +1,6 @@
-require File.dirname(__FILE__) + '/paths'
-require File.dirname(__FILE__) + '/../selenium_on_rails_config'
+$: << File.expand_path(File.dirname(__FILE__) + "/")
+$: << File.expand_path(File.dirname(__FILE__) + "/../")
+require 'paths'
 require 'net/http'
 require 'tempfile'
 
@@ -58,7 +59,7 @@ module SeleniumOnRails
           result = YAML::load_file log_file
           print_result result
           has_error ||= result['numTestFailures'].to_i > 0
-          File.delete log_file unless has_error
+          # File.delete log_file unless has_error
         end
         
         if USE_XVFB

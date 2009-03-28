@@ -1,4 +1,5 @@
-# Rename this file to config.yml in order to configure the plugin
+# Please read as our directions have changed:
+# Move this file to your rails apps config directory and rename it to selenium.yml in order to configure the plugin
 
 #
 # General settings
@@ -16,12 +17,12 @@ environments:
 
 browsers:
   # Windows
-  firefox: 'c:\Program Files\Mozilla Firefox\firefox.exe'
-  ie: 'c:\Program Files\Internet Explorer\iexplore.exe'
+  # firefox: 'c:\Program Files\Mozilla Firefox\firefox.exe'
+  # ie: 'c:\Program Files\Internet Explorer\iexplore.exe'
 
   # Mac OS X
-  #firefox: '/Applications/Firefox.app/Contents/MacOS/firefox-bin'
-  #safari: '/Applications/Safari.app/Contents/MacOS/Safari'
+  firefox: '/Applications/Firefox.app/Contents/MacOS/firefox-bin'
+  safari: '/Applications/Safari.app/Contents/MacOS/Safari'
 
 #host: 'localhost'
 #port_start: 3000
@@ -31,3 +32,6 @@ browsers:
 #multi_window: false
   
 #result_dir: 'c:\result' # the directory where the results will be stored after a test:acceptance run
+
+#fixtures_path: <%= "#{RAILS_ROOT}/spec/fixtures" %>
+#selenium_tests_path: <%= "#{RAILS_ROOT}/spec/selenium" %>

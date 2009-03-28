@@ -2,12 +2,14 @@ require File.dirname(__FILE__) + '/../../lib/selenium_on_rails_config'
 
 module SeleniumOnRails
   module Paths
+    
     def selenium_path
       @@selenium_path ||= find_selenium_path
       @@selenium_path
     end
     
     def selenium_tests_path
+      return SeleniumOnRailsConfig.get("selenium_tests_path") if SeleniumOnRailsConfig.get("selenium_tests_path")
       File.expand_path(File.join(RAILS_ROOT, 'test/selenium'))
     end
     
@@ -23,6 +25,7 @@ module SeleniumOnRails
     end
     
     def fixtures_path
+      return SeleniumOnRailsConfig.get("fixtures_path") if SeleniumOnRailsConfig.get("fixtures_path")
       File.expand_path File.join(RAILS_ROOT, 'test/fixtures')
     end
     
@@ -37,21 +40,22 @@ module SeleniumOnRails
       false
     end
     
-    private
-      def find_selenium_path
-        sel_dirs = SeleniumOnRailsConfig.get :selenium_path do
-          File.expand_path(File.dirname(__FILE__) + '/../../selenium-core')
-        end
+    private ###############################################
 
-        sel_dirs.to_a.each do |seleniumdir|
-          ['', 'core', 'selenium', 'javascript'].each do |subdir|
-            path = File.join seleniumdir, subdir
-            return path if File.exist?(File.join(path, 'TestRunner.html'))
-          end
-        end
-        
-        raise 'Could not find Selenium Core installation'
+    def find_selenium_path
+      sel_dirs = SeleniumOnRailsConfig.get :selenium_path do
+        File.expand_path(File.dirname(__FILE__) + '/../../selenium-core')
       end
+
+      sel_dirs.to_a.each do |seleniumdir|
+        ['', 'core', 'selenium', 'javascript'].each do |subdir|
+          path = File.join seleniumdir, subdir
+          return path if File.exist?(File.join(path, 'TestRunner.html'))
+        end
+      end
+      
+      raise 'Could not find Selenium Core installation'
+    end
        
   end
 end

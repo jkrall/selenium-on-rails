@@ -2827,9 +2827,10 @@ var Selector = Class.create({
     Selector._cache[this.expression] = this.xpath;
   },
 
-  findElements: function(root) {
-    root = root || document;
-    var e = this.expression, results;
+  compileMatcher: function() {
+    this.match = new Function('element', 'if (!element.tagName) return false; \n' +
+    'return ' + this.buildMatchExpression());
+  },
 
     switch (this.mode) {
       case 'selectorsAPI':
