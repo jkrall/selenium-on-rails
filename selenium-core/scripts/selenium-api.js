@@ -672,12 +672,16 @@ Selenium.prototype.doType = function(locator, value) {
    * @param locator an <a href="#locators">element locator</a>
    * @param value the value to type
    */
-	netscape.security.PrivilegeManager.enablePrivilege("UniversalFileRead");
    if (this.browserbot.controlKeyDown || this.browserbot.altKeyDown || this.browserbot.metaKeyDown) {
         throw new SeleniumError("type not supported immediately after call to controlKeyDown() or altKeyDown() or metaKeyDown()");
     }
         // TODO fail if it can't be typed into.
     var element = this.browserbot.findElement(locator);
+
+    if (element.getAttribute('type')=="file") {
+	netscape.security.PrivilegeManager.enablePrivilege("UniversalFileRead");
+    }
+
     if (this.browserbot.shiftKeyDown) {
         value = new String(value).toUpperCase();
     }
