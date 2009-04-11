@@ -4,6 +4,7 @@ module ActionController
       alias_method :draw_without_selenium_routes, :draw
       def draw
         draw_without_selenium_routes do |map|
+          yield map if block_given?
           map.connect 'selenium/setup',
             :controller => 'selenium', :action => 'setup'
           map.connect 'selenium/tests/*testname',
@@ -18,7 +19,6 @@ module ActionController
             :controller => 'selenium', :action => 'support_file'
           map.connect 'switch_environment',
             :controller => 'switch_environment', :action => 'index'  
-          yield map if block_given?
         end
       end
     end
