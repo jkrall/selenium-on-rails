@@ -3,13 +3,14 @@ require 'webrick/httputils'
 class SeleniumController < ActionController::Base
   include SeleniumOnRails::FixtureLoader
   include SeleniumOnRails::Renderer
-  
+
   def initialize
     @result_dir = SeleniumOnRailsConfig.get(:result_dir)
   end
-  
+
   def setup
     unless params.has_key? :keep_session
+      Rails.cache.clear
       reset_session #  IS THIS WORKING!  NO THINK SO
       @session_wiped = true
     end
@@ -59,7 +60,7 @@ class SeleniumController < ActionController::Base
     display = SeleniumOnRailsConfig.get(:xvfb_display, ':555')
     cmd = "/usr/bin/import -display #{display} -window root #{filename}"
     logger.info "Taking Screenshot with: #{cmd}"
-    p "Taking Screenshot with: #{cmd}"    
+    p "Taking Screenshot with: #{cmd}"
     result = system(cmd)
 
     smallfilename = File.dirname(filename)+'/thumbnails'
@@ -67,7 +68,7 @@ class SeleniumController < ActionController::Base
     smallfilename = smallfilename + '/' + File.basename(filename)
     resizecmd = "/usr/bin/convert #{filename} -resize 20% #{smallfilename}"
     logger.info "Reducing screenshot with: #{resizecmd}"
-    p "Reducing screenshot with: #{resizecmd}"    
+    p "Reducing screenshot with: #{resizecmd}"
     system(resizecmd)
 
     render :text=>"Screenshot Taken, result: #{result}"
@@ -80,9 +81,9 @@ class SeleniumController < ActionController::Base
     ['result', 'numTestFailures', 'numTestPasses', 'numCommandFailures', 'numCommandPasses', 'numCommandErrors', 'totalTime'].each do |item|
       @result[item] = params[item]
     end
-    
+
     File.open(log_path(params[:logFile] || 'default.yml'), 'w') {|f| YAML.dump(@result, f)}
-    
+
     render :file => view_path('record.rhtml'), :layout => layout_path
   end
 
@@ -139,6 +140,6 @@ EOS
     end
     cur_result_dir
   end
-  
+
   private :record_table
 end
