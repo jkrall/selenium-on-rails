@@ -81,3 +81,44 @@ Selenium.prototype.doRequestScreenshot = function(url, filename) {
 	var fullurl = url + '?filename=' + filename;
 	new Ajax.Request(fullurl);
 };
+
+// Custom method for uploading a file
+Selenium.prototype.doSwfUpload = function(selector, filename) {
+	var win = this.browserbot.getCurrentWindow();
+	var doc = win.document;
+	var swf_uploader = Element.select($(doc.body), selector)[0];
+	var flashvars_s = swf_uploader.down('param[name=flashvars]').value;
+	var flashvars = {};
+	$A(flashvars_s.split(/&/)).each(function(kv){
+		var key = unescape(kv.split(/=/)[0]);
+		var value = unescape(kv.split(/=/)[1]);
+		flashvars[key] = value;
+	});
+	var params_array = $A(decodeURI(flashvars.params).split(/&amp;/));
+	var params = new Hash({});
+
+	params_array.each(function(kv){
+		var key = decodeURI(kv.split(/=/)[0]);
+		var value = decodeURI(kv.split(/=/)[1]);
+		params.set(key, value);
+	});
+	params.unset('format'); // Remove the format param, since we don't want to request as json
+
+	var faker_form = Element.select($$('#selenium_fileupload_iframe')[0].contentDocument.body, '#swfupload_faker_form')[0];
+	params.each(function(kv) {
+		Element.insert(faker_form, { bottom: '<input type="hidden" name="'+kv.key+'" value="'+kv.value+'" />' });
+	});
+
+	netscape.security.PrivilegeManager.enablePrivilege("UniversalFileRead");
+  this.browserbot.replaceText(faker_form.down('#swfupload_faker_file'), filename);
+
+	faker_form.action = flashvars.uploadURL;
+	faker_form.submit();
+	Element.select(faker_form, 'input[type=hidden]').each(function(e){
+		e.remove();
+	});
+
+	$$('#selenium_fileupload_iframe')[0].contentWindow.location = "TestRunner-fileupload.html";
+};
+
+
