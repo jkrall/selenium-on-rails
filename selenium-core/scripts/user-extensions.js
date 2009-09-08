@@ -88,7 +88,7 @@ Selenium.prototype.doSwfUpload = function(selector, filename) {
 
 	// Grab the SWFUpload element from the DOM
 	var doc = this.browserbot.getCurrentWindow().document;
-	var swf_uploader = Element.select($(doc.body), selector)[0];
+    var swf_uploader = $(doc.body).select(selector)[0];
 
 	// Slurp the list of params from SWFUload, and parse them into a Hash
 	var flashvars_s = swf_uploader.down('param[name=flashvars]').value;
@@ -109,7 +109,7 @@ Selenium.prototype.doSwfUpload = function(selector, filename) {
 
 	// Grab the SWFUpload form from the hidden IFrame,
 	// and insert the key/value params into the form
-	var faker_form = Element.select($$('#selenium_fileupload_iframe')[0].contentDocument.body, '#swfupload_faker_form')[0];
+	var faker_form = $$('#selenium_fileupload_iframe')[0].contentDocument.body.select('#swfupload_faker_form')[0];
 	params.each(function(kv) {
 		Element.insert(faker_form, { bottom: '<input type="hidden" name="'+kv.key+'" value="'+kv.value+'" />' });
 	});
@@ -123,7 +123,7 @@ Selenium.prototype.doSwfUpload = function(selector, filename) {
 	faker_form.submit();
 
 	// Clean up the params
-	Element.select(faker_form, 'input[type=hidden]').each(function(e){
+	faker_form.select('input[type=hidden]').each(function(e){
 		e.remove();
 	});
 
