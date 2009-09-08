@@ -130,6 +130,17 @@ var BrowserVersion = function() {
         checkChrome();
         return;
     }
+    if (navigator.userAgent.indexOf('Iceweasel') != -1) {
+        this.browser = BrowserVersion.FIREFOX;
+        this.isFirefox = true;
+        this.isGecko = true;
+        var result = /.*Iceweasel\/([\d\.]+).*/.exec(navigator.userAgent);
+        if (result) {
+            this.firefoxVersion = result[1];
+        }
+        checkChrome();
+        return;
+    }
 
     if (navigator.userAgent.indexOf('Gecko') != -1) {
         this.browser = BrowserVersion.MOZILLA;
