@@ -26,7 +26,7 @@ class SeleniumController < ActionController::Base
       @suite_path = filename
       render :file => view_path('test_suite.rhtml'), :layout => layout_path
     elsif File.readable? filename
-			take_screenshot("final/#{params[:testname]}.png")
+			take_screenshot(screenshot_path("final/#{params[:testname]}.png"))
       render_test_case filename
     else
       if File.directory? selenium_tests_path
@@ -60,6 +60,22 @@ class SeleniumController < ActionController::Base
   end
 
 	private
+def screenshot_path(filename)
+  case request.user_agent
+    when /(gecko)/i
+      browser = :gecko
+    when /(webkit)/i
+      browser = :webkit
+    when /msie\s+7\.\d+/i
+      browser = :ie7
+    when /msie/i
+      browser = :ie
+    else
+      browser = :unknown
+  end
+  "#{ENV['CC_BUILD_ARTIFACTS']}/screenshots/#{browser}/#{filename}"
+end
+
 	def take_screenshot(filename)
     path = File.dirname(filename)
     FileUtils::mkdir_p(path)
