@@ -10,7 +10,9 @@ class SeleniumController < ActionController::Base
 
   def setup
     unless params.has_key? :keep_session
+			previous_testname = Rails.cache.read('selenium.previous_testname')
       Rails.cache.clear
+			Rails.cache.write('selenium.previous_testname', previous_testname)
       reset_session #  IS THIS WORKING!  NO THINK SO
       @session_wiped = true
     end
