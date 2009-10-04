@@ -27,11 +27,13 @@ class SeleniumController < ActionController::Base
       @suite_path = filename
       render :file => view_path('test_suite.rhtml'), :layout => layout_path
     elsif File.readable? filename
-			if previous_testname = Rails.cache.read('selenium.previous_testname')
-				take_screenshot(screenshot_path("final/#{previous_testname}.png"))
-			end
+      previous_testname = Rails.cache.read('selenium.previous_testname')
+      if previous_testname
+        logger.info "Taking Final Screenshot for: #{previous_testname}"
+      take_screenshot(screenshot_path("final/#{previous_testname}.png"))
+    end
       render_test_case filename
-			Rails.cache.write('selenium.previous_testname', params[:testname])
+      Rails.cache.write('selenium.previous_testname', params[:testname])
     else
       if File.directory? selenium_tests_path
         render :text => 'Not found', :status => 404
