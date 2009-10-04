@@ -28,7 +28,7 @@ class SeleniumController < ActionController::Base
       render :file => view_path('test_suite.rhtml'), :layout => layout_path
     elsif File.readable? filename
 			if previous_testname = Rails.cache.read('selenium.previous_testname')
-				take_screenshot("final/#{previous_testname}.png")
+				take_screenshot(screenshot_path("final/#{previous_testname}.png"))
 			end
       render_test_case filename
 			Rails.cache.write('selenium.previous_testname', params[:testname])
@@ -64,6 +64,22 @@ class SeleniumController < ActionController::Base
   end
 
 	private
+	def screenshot_path(filename)
+	  case request.user_agent
+	    when /(gecko)/i
+	      browser = :gecko
+	    when /(webkit)/i
+	      browser = :webkit
+	    when /msie\s+7\.\d+/i
+	      browser = :ie7
+	    when /msie/i
+	      browser = :ie
+	    else
+	      browser = :unknown
+	  end
+	  "#{ENV['CC_BUILD_ARTIFACTS']}/screenshots/#{browser}/#{filename}"
+	end
+
 	def take_screenshot(filename)
     path = File.dirname(filename)
     FileUtils::mkdir_p(path)
