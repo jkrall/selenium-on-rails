@@ -26,6 +26,7 @@ class SeleniumController < ActionController::Base
       @suite_path = filename
       render :file => view_path('test_suite.rhtml'), :layout => layout_path
     elsif File.readable? filename
+			take_screenshot("final/#{params[:testname]}.png")
       render_test_case filename
     else
       if File.directory? selenium_tests_path
@@ -54,7 +55,12 @@ class SeleniumController < ActionController::Base
   end
 
   def screenshot
-    filename = params[:filename]
+		result = take_screenshot(params[:filename])
+    render :text=>"Screenshot Taken, result: #{result}"
+  end
+
+	private
+	def take_screenshot(filename)
     path = File.dirname(filename)
     FileUtils::mkdir_p(path)
     display = SeleniumOnRailsConfig.get(:xvfb_display, ':555')
@@ -71,8 +77,9 @@ class SeleniumController < ActionController::Base
     p "Reducing screenshot with: #{resizecmd}"
     system(resizecmd)
 
-    render :text=>"Screenshot Taken, result: #{result}"
-  end
+		return result
+	end
+	public
 
   def record
     dir = record_table
