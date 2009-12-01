@@ -5,9 +5,9 @@ class SeleniumOnRailsConfig
   @@defaults = {:environments => ['test']}
   def self.get var, default = nil
     value = configs[var.to_s]
-    value ||= @@defaults[var]
-    value ||= default
-    value ||= yield if block_given?
+    value = @@defaults[var] if value.nil?
+    value = default if value.nil?
+    value = yield if block_given? and value.nil?
     value
   end
 
