@@ -109,7 +109,7 @@ class SeleniumController < ActionController::Base
     dir = record_table
 
     @result = {'resultDir' => dir}
-    ['result', 'numTestFailures', 'numTestPasses', 'numCommandFailures', 'numCommandPasses', 'numCommandErrors', 'totalTime'].each do |item|
+    ['result', 'numTestFailures', 'numTestPasses', 'numCommandFailures', 'numCommandPasses', 'numCommandErrors', 'totalTime', 'failuresAndErrors'].each do |item|
       @result[item] = params[item]
     end
 
