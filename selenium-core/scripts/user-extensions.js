@@ -77,9 +77,15 @@ PageBot.prototype.locateElementByValueRepeated = function(text, inDocument) {
 
 // All do* methods on the Selenium prototype are added as actions.
 // The typeTwiceAndWait command will be available automatically
+var takingScreenshot = false;
 Selenium.prototype.doRequestScreenshot = function(url, filename) {
 	var fullurl = url + '?filename=' + filename;
-	new Ajax.Request(fullurl);
+  takingScreenshot = true;
+	new Ajax.Request(fullurl, {
+	  onComplete: function() {
+      takingScreenshot = false;
+	  }
+	});
 };
 
 
