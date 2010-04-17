@@ -85,21 +85,25 @@ class SeleniumController < ActionController::Base
 	end
 
 	def take_screenshot(filename)
-    path = File.dirname(filename)
-    FileUtils::mkdir_p(path)
-    display = SeleniumOnRailsConfig.get(:xvfb_display, ':555')
-    cmd = "/usr/bin/import -display #{display} -window root #{filename}"
-    logger.info "Taking Screenshot with: #{cmd}"
-    p "Taking Screenshot with: #{cmd}"
-    result = system(cmd)
+	  begin
+      path = File.dirname(filename)
+      FileUtils::mkdir_p(path)
+      display = SeleniumOnRailsConfig.get(:xvfb_display, ':555')
+      cmd = "/usr/bin/import -display #{display} -window root #{filename}"
+      logger.info "Taking Screenshot with: #{cmd}"
+      p "Taking Screenshot with: #{cmd}"
+      result = system(cmd)
 
-    smallfilename = File.dirname(filename)+'/thumbnails'
-    FileUtils::mkdir_p(smallfilename)
-    smallfilename = smallfilename + '/' + File.basename(filename)
-    resizecmd = "/usr/bin/convert #{filename} -resize 20% #{smallfilename}"
-    logger.info "Reducing screenshot with: #{resizecmd}"
-    p "Reducing screenshot with: #{resizecmd}"
-    system(resizecmd)
+      smallfilename = File.dirname(filename)+'/thumbnails'
+      FileUtils::mkdir_p(smallfilename)
+      smallfilename = smallfilename + '/' + File.basename(filename)
+      resizecmd = "/usr/bin/convert #{filename} -resize 20% #{smallfilename}"
+      logger.info "Reducing screenshot with: #{resizecmd}"
+      p "Reducing screenshot with: #{resizecmd}"
+      system(resizecmd)
+    rescue
+      logger.debug "Couldn't take screenshot!"
+    end
 
 		return result
 	end
