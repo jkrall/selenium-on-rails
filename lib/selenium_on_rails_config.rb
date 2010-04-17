@@ -2,7 +2,7 @@ require 'yaml'
 require 'erb'
 
 class SeleniumOnRailsConfig
-  @@defaults = {:environments => ['test']}
+  @@defaults = {:environments => ['test', 'selenium']}
   def self.get var, default = nil
     value = configs[var.to_s]
     value = @@defaults[var] if value.nil?
